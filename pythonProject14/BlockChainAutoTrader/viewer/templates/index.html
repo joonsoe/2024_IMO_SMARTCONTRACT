@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Carbon Emission Monitoring</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
+            var ctx = document.getElementById('chart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [], // x-data (횟수)
+                    datasets: [{
+                        label: 'Carbon Emission (kg)',
+                        data: [], // y-data (탄소 배출량)
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            socket.on('update', function(data) {
+                chart.data.labels = data.x;
+                chart.data.datasets[0].data = data.y;
+                chart.update();
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Real-Time Carbon Emission Monitoring</h1>
+    <canvas id="chart" width="600" height="400"></canvas>
+</body>
+</html>
